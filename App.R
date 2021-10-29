@@ -95,13 +95,33 @@ ui <- navbarPage("Péréquation - Fomulaires pour suivi", theme = shinytheme("sa
                                    dateInput("date_deploi", label = "Date de validation en Commission / Session du conseil régional", format = "dd/mm/yyyy", value = Sys.Date()),
                                    
                                    # N° mission
-                                   selectInput("mission_deploi", label = "N° de la mission dont le dispositif fait partie", choices = c("Mission 1 - Aménagement", "Mission 2 - Économie", "...")),
+                                   fluidRow(
+                                     column(width = 3,
+                                            selectInput("mission_deploi", label = "N° de la mission dont le dispositif fait partie", choices = c("Mission 1 - Aménagement", "Mission 2 - Économie", "..."))
+                                     ),
+                                     column(width = 9,
+                                            tags$b("Libellé de la mission"),
+                                            em(textOutput("mission_lib"))
+                                     )
+                                   ),
+
+                                   
                                    
                                    # N° programme
-                                   selectInput("programme_deploi", label = "N° du programme dont le dispositif fait partie", choices = c("101 - Contractualisation avec les territoires", "102 - Observer, accompagner, anticiper les mutations territoriales", "...")),
+                                   fluidRow(
+                                     column(width = 3,
+                                            selectInput("programme_deploi", label = "N° du programme dont le dispositif fait partie", choices = c("101 - Contractualisation avec les territoires", "102 - Observer, accompagner, anticiper les mutations territoriales", "..."))
+                                            ),
+                                     column(width = 9,
+                                            tags$b("Libellé du programme"),
+                                            em(textOutput("programme_lib"))
+                                            )
+                                   ),
+                                   
                                    
                                    # Nom du dispositif
                                    textInput("lib_disp_deploi", label = "Dénomination du dispositif concerné"),
+                                   
                                    
                                    # Montant total
                                    numericInput("montant_disp_deploi", label = "Budget du dispositif", value = NULL),
@@ -255,6 +275,31 @@ server <- function(input, output, session){
                       label = "Service",
                       choices = sort(x$service)
     )
+  })
+  
+  # --- Affichage de l'intitulé de la mission et du programme choisis
+  
+  # Mission
+  output$mission_lib <- renderText({
+    
+    temp <- nomenclature_tab() %>% 
+      filter(mission == input$mission_deploi & is.na(mission_lib) ==  FALSE) %>%
+      select(mission_lib)
+    
+    temp$mission_lib
+    
+  })
+  
+  
+  # Programme
+  output$programme_lib <- renderText({
+    
+    temp <- nomenclature_tab() %>% 
+      filter(mission == input$mission_deploi, programme == input$programme_deploi) %>%
+      select(programme_lib)
+    
+    temp$programme_lib
+    
   })
   
   
